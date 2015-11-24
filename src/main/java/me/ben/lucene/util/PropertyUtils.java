@@ -3,14 +3,14 @@ package me.ben.lucene.util;
 import java.io.*;
 import java.util.*;
 
-public class PropertiesUtils {
+public class PropertyUtils {
 	private Properties props;  
     private String prefixName;  
 	 /**
      * 
      * @param prefixName   e.g. "sys"  -> load "sys.properties"
      */
-    public PropertiesUtils(String prefixName){  
+    public PropertyUtils(String prefixName){  
     	try {  
     		prefixName = prefixName;
             props = new Properties();  
@@ -64,7 +64,7 @@ public class PropertiesUtils {
     }  
     */   
     public static void main(String[] args) {  
-        PropertiesUtils sysProps=new PropertiesUtils("sys");  
+        PropertyUtils sysProps=new PropertyUtils("sys");  
         System.out.println("value=" + sysProps.getProperty("name"));  
        //util.writeProperties("value", "value0");  
         

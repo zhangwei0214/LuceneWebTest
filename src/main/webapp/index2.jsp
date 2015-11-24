@@ -1,5 +1,6 @@
 <%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
 <%
+//该jsp是给文件系统搜索
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
 %>
@@ -81,18 +82,17 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	}
 	
 	function crawl(){
-		var cat_val=$("#category").val();
-		var cat_text=$("#category").find("option:selected").text();
-		tip("正在抓取网易新闻 『"+cat_text+"』 频道，请稍后");
+		var srcDir=$("#srcDir").val();
+		tip("正在抓取 『"+srcDir+"』 的内容，请稍后");
 		$.ajax({
              type: "post",
-             url: "crawl/ntes.do",
-             data: {"category":cat_val},
+             url: "crawl/fs.do",
+             data: {"srcDir":srcDir},
              dataType: "json",
              success: function(data){
             	 var html="";
-             		$.each(data,function(i,n){
-             			html+="<a href='"+n.url+"'>"+n.title+"</a><p>"+n.shortContent+"</p>";
+             		$.each(data,function(i,file){
+             			html+="path="+file.path+" name="+file.name+"<p>"+file.content +" </p>";
              		});
              		tip("<font color=blue>抓取成功</font>");
              		$("#show").empty();
@@ -103,39 +103,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
          });
 	}
 	
-	function split(){
-		tip("正在对输入的文本进行分词，请稍后");
-		
-		var maxLength=0;
-		
-		if($("#isMaxLength").is(":checked")){
-			maxLength=1;
-		}
-		
-		$.ajax({
-             type: "post",
-             url: "ik/split.do",
-             data: {"text":$("#content").val(),"isMaxLength":maxLength},
-             dataType: "json",
-             success: function(data){
-            	 	var html="";
-             		$.each(data,function(i,n){
-             			html+="<button class='box'>"+n+"</button>";
-             		});
-             		tip("<font color=blue>分词结束</font>");
-             		$("#show").empty();
-             		$("#show").append(html);
-             },error:function(data){
-            	 tip("<font color=red>抓取失败</font>");
-             }
-         });
-	}
+	
 	
 	function indexFiles(){
 		tip("正在执行");
 		$.ajax({
             type: "post",
-            url: "lucene/indexFiles.do",
+            url: "lucene/fs/indexFiles.do",
             data: {},
             dataType: "json",
             success: function(data){
@@ -157,14 +131,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		tip("正在执行");
 		$.ajax({
             type: "post",
-            url: "lucene/deleteIndexes.do",
+            url: "lucene/fs/deleteIndexes.do",
             data: {},
             dataType: "text",
             success: function(data){
            	 		if(data=="suc"){
            	 			tip("已删除所有索引");
            	 		}
-           	 	indexFiles();
+           	 	indexFiles();	//重新刷新indexFiles 列表(前台清空)
             },error:function(data){
            	 tip("<font color=red>操作失败</font>");
             }
@@ -174,13 +148,13 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		tip("正在执行");
 		$.ajax({
              type: "post",
-             url: "lucene/listIndexed.do",
+             url: "lucene/fs/listIndexed.do",
              data: {},
              dataType: "json",
              success: function(data){
             	 	var html="<ul>";
-             		$.each(data,function(i,n){
-             			html+="<li><a href='"+n.url+"'>"+n.title+"</a></li>";
+             		$.each(data,function(i,file){
+             				html+="<li>path="+file.path+" name="+file.name+"<p>"+file.content +" </p></li>";
              		});
              		html+="</ul>";
              		tip("<font color=blue>操作成功</font>");
@@ -196,14 +170,14 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 		tip("正在查询");
 		$.ajax({
              type: "post",
-             url: "lucene/search.do",
-             data: {"text":$("#keyword").val()},
+             url: "lucene/fs/search.do",
+             data: {"searchStr":$("#keyword").val()},
              dataType: "json",
              success: function(data){
             	 	console.log(data);
             	 	var html="<ul>";
-             		$.each(data,function(i,n){
-             			html+="<li>docId:"+n.other1+"<a href='"+n.url+"'>"+n.title+"</a>-"+n.date+"<p>"+n.content+"</p></li>";
+             		$.each(data,function(i,file){
+             			html+="<li>path="+file.path+" name="+file.name+"<p>"+file.content +" </p></li>";
              		});
              		html+="</ul>";
              		console.log(html);
@@ -222,24 +196,16 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     	<div class="container">
     			<fieldset>
 				    <legend>数据抓取</legend>
-				    <button id="crawl" onclick="crawl()">抓取网易新闻头条</button>
-		    		<select id="category">
-		    			<option value="domestic">国内</option>
-		    			<option value="shehui">社会</option>
-		    		</select>
+				    <textarea id="srcDir">E:/studyWorkSpace</textarea>
+				    <button id="crawl" onclick="crawl()">抓取本地txt文件</button>
 				</fieldset>
 				<fieldset>
 				    <legend>Lucene操作</legend>
 				    <button id="indexFiles" onclick="indexFiles()">查看所有文件</button>
 				    <button id="deleteIndexes" onclick="deleteIndexes()">删除索引</button>
 				    <button id="listIndexes" onclick="listIndexes()">列出所有索引数据</button>
-				    <textarea id="keyword"></textarea>
+				    <textarea id="keyword">用户</textarea>
 				   <button id="search" onclick="search()">查询</button>
-				</fieldset>
-				<fieldset>
-				    <legend>IKAnalyzer中文分词</legend>
-				    <textarea id="content"></textarea>
-				    <input type="checkbox" id="isMaxLength" ><label for="isMaxLength" style="font-size:15;">最大长度分词？</label><button id="split" onclick="split()">查询</button>
 				</fieldset>
     	</div>
     	<div class="container2">

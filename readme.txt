@@ -25,4 +25,6 @@ todo:
 1)加入网络crawler特性(学习性质, 因为通常lucene是做基于内网/特定数据的站内搜索)
 3)UI优化
 
-
+[2015-11-23]
+加入中文分词& 搜索网易新闻
+https://github.com/Guibo-Pan/IKAnalyzer

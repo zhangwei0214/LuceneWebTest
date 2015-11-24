@@ -9,9 +9,31 @@
   <url>http://maven.apache.org</url>
   <properties>
 	  <lucene.version>5.3.1</lucene.version>
+	  <spring.version>4.0.2.RELEASE</spring.version>
+	  <jsoup.version>1.7.3</jsoup.version>
 	  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencies>
+  	<!-- Spring web mvc -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- Spring framework 4中的orm包已经单独拿出来了，所以要和hibernate集成，需要此包 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- 提供JMS，Freemarker,Quartz集成服务 -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context-support</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
     <!-- lucene start -->
     <dependency>
 		<groupId>org.apache.lucene</groupId>
@@ -85,6 +107,12 @@
 		<version>1.2.7</version>
 	</dependency>
 	
+	<!-- html解析工具   jsoup -->
+	<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+			<version>${jsoup.version}</version>
+		</dependency>
   </dependencies>
   <build>
     <finalName>LuceneWebTest</finalName>

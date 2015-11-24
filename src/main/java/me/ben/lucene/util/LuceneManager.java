@@ -1,6 +1,8 @@
 package me.ben.lucene.util;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -19,10 +21,11 @@ import org.apache.lucene.store.LockObtainFailedException;
  */
 public class LuceneManager {
   private volatile static LuceneManager singleton;
+  private volatile static Map<String,IndexWriter> writerMap = new HashMap<String,IndexWriter>();
+  //private volatile static IndexWriter writer;
   
-  private volatile static IndexWriter writer;
-  
-  private volatile static IndexReader reader;
+  private volatile static Map<String,IndexReader> readerMap = new HashMap<String,IndexReader>();
+  //private volatile static IndexReader reader;
   
   private volatile static IndexSearcher searcher;
   
@@ -58,6 +61,7 @@ public class LuceneManager {
     if(null == config) {
       throw new IllegalArgumentException("IndexWriterConfig can not be null.");
     }
+    IndexWriter writer = writerMap.get(dir.toString());
     try {
       writerLock.lock();
       if(null == writer){
@@ -66,6 +70,7 @@ public class LuceneManager {
           throw new LockObtainFailedException("Directory of index had been locked.");
         }
         writer = new IndexWriter(dir, config);
+        writerMap.put(dir.toString(), writer);
       }
     } catch (LockObtainFailedException e) {
       e.printStackTrace();
@@ -87,6 +92,7 @@ public class LuceneManager {
     if(null == dir) {
       throw new IllegalArgumentException("Directory can not be null.");
     }
+    IndexReader reader = readerMap.get(dir.toString());
     try {
       if(null == reader){
         reader = DirectoryReader.open(dir);
@@ -94,6 +100,7 @@ public class LuceneManager {
         if(enableNRTReader && reader instanceof DirectoryReader) {
           //开启近实时Reader,能立即看到动态添加/删除的索引变化
           reader = DirectoryReader.openIfChanged((DirectoryReader)reader);
+          readerMap.put(dir.toString(), reader);
         }
       }
     } catch (IOException e) {

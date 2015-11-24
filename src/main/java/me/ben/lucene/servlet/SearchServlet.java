@@ -1,7 +1,6 @@
 package me.ben.lucene.servlet;
 
-import me.ben.lucene.bean.FileBean;
-import me.ben.lucene.constant.Constants;
+import me.ben.lucene.bean.LocalFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import me.ben.lucene.crawler.LocalFileSystemCrawler;
 import me.ben.lucene.util.FileUtils;
-import me.ben.lucene.util.PropertiesUtils;
+import me.ben.lucene.util.PropertyUtils;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -55,13 +54,15 @@ public class SearchServlet extends HttpServlet{
 		    IndexWriter indexWriter = new IndexWriter(indexFolder, config);
 		    */
 			
-			//创建索引信息
-			LocalFileSystemCrawler.createIndex(Constants.INDEX_ROOT);
+			//创建索引信息 //应该由后台进程创建
+			//LocalFileSystemCrawler.createIndex(Constants.INDEX_ROOT);
 			
 			//搜索
-			List<FileBean> fileList= LocalFileSystemCrawler.searchIndex(searchString);
+			/*
+			List<LocalFile> fileList= LocalFileSystemCrawler.searchIndex(searchString);
 			req.getSession(true).setAttribute("fileList", fileList);
 			resp.sendRedirect("index.jsp");
+			*/
 		}
 		
 		@Override
